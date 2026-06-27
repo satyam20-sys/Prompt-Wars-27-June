@@ -1,4 +1,4 @@
-# Prompt-Wars-27-June
+# ExamZen — AI mental wellness companion for Indian exam students (JEE/NEET/CAT/GATE/UPSC)
 Mental Wellness Tracker
 Description
 
