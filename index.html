@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ExamZen — Student Mental Wellness Companion</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar/Header Navigation -->
+        <header class="app-header">
+            <div class="logo-area">
+                <i class="fa-solid fa-brain-circuit brand-icon"></i>
+                <h1>ExamZen</h1>
+                <span class="tagline font-accent">Aspirant Wellness</span>
+            </div>
+
+            <!-- Quick Access Coping Tools -->
+            <div class="quick-coping-bar">
+                <div class="quick-title font-accent"><i class="fa-solid fa-bolt-lightning"></i> Quick Coping</div>
+                <div class="quick-actions">
+                    <button id="btn-panic" class="btn-coping btn-panic" title="60-second breathing exercise">
+                        <i class="fa-solid fa-lungs"></i> Panic Button
+                    </button>
+                    <div class="motivate-group">
+                        <select id="motivate-exam" class="select-small">
+                            <option value="JEE">JEE</option>
+                            <option value="NEET">NEET</option>
+                            <option value="CUET">CUET</option>
+                            <option value="CAT">CAT</option>
+                            <option value="GATE">GATE</option>
+                            <option value="UPSC">UPSC</option>
+                            <option value="Boards">Boards</option>
+                        </select>
+                        <button id="btn-motivate" class="btn-coping btn-motivate" title="Exam motivation booster">
+                            <i class="fa-solid fa-fire"></i> Motivate Me
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="app-nav">
+                <button id="tab-journal" class="nav-item active" onclick="switchTab('journal')">
+                    <i class="fa-solid fa-pen-fancy"></i> Journal & Insights
+                </button>
+                <button id="tab-dashboard" class="nav-item" onclick="switchTab('dashboard')">
+                    <i class="fa-solid fa-chart-line"></i> Stress Dashboard
+                </button>
+                <button id="tab-chat" class="nav-item" onclick="switchTab('chat')">
+                    <i class="fa-solid fa-comments-pie"></i> Empathetic Coach
+                </button>
+            </nav>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="app-main">
+            <!-- Alert & Error Banner Area -->
+            <div id="error-container" class="error-container hidden">
+                <div class="error-card">
+                    <div class="error-header">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <h3>System Notice / Error</h3>
+                        <button class="close-error" onclick="dismissError()">&times;</button>
+                    </div>
+                    <p id="error-message">Something went wrong.</p>
+                </div>
+            </div>
+
+            <!-- Global AI Session Usage Indicator -->
+            <div class="usage-bar">
+                <span>AI Session Limit: <strong id="limit-count">0</strong> / 20 calls</span>
+                <div class="progress-track">
+                    <div id="limit-progress" class="progress-bar" style="width: 0%;"></div>
+                </div>
+            </div>
+
+            <!-- Tab 1: Journaling & Insights -->
+            <section id="section-journal" class="tab-content active">
+                <div class="grid-two-cols">
+                    <!-- Left: Journaling Form -->
+                    <div class="form-container">
+                        <div class="card glass">
+                            <h2><i class="fa-solid fa-feather-pointed"></i> Daily Reflection</h2>
+                            <p class="subtitle text-muted">Log your mood, thoughts, and exams to unlock stress mapping</p>
+                            
+                            <form id="form-journal" onsubmit="handleJournalSubmit(event)">
+                                <div class="form-row">
+                                    <div class="form-group flex-1">
+                                        <label for="journal-exam">Exam Tracked</label>
+                                        <select id="journal-exam" required>
+                                            <option value="JEE">JEE (Engineering)</option>
+                                            <option value="NEET">NEET (Medical)</option>
+                                            <option value="CUET">CUET (UG/PG)</option>
+                                            <option value="CAT">CAT (Management)</option>
+                                            <option value="GATE">GATE (Engineering PG)</option>
+                                            <option value="UPSC">UPSC (Civil Services)</option>
+                                            <option value="Boards">Class 10/12 Boards</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group flex-1">
+                                        <label for="journal-exam-date">Exam Date (Optional)</label>
+                                        <input type="date" id="journal-exam-date">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Current Emotional State (Mood)</label>
+                                    <div class="mood-selector">
+                                        <input type="radio" name="mood" id="mood-happy" value="😊" checked>
+                                        <label for="mood-happy" class="mood-btn" title="Happy/Motivated">😊</label>
+                                        
+                                        <input type="radio" name="mood" id="mood-neutral" value="😐">
+                                        <label for="mood-neutral" class="mood-btn" title="Neutral/Okay">😐</label>
+                                        
+                                        <input type="radio" name="mood" id="mood-sad" value="😔">
+                                        <label for="mood-sad" class="mood-btn" title="Sad/Fatigued">😔</label>
+                                        
+                                        <input type="radio" name="mood" id="mood-stressed" value="😰">
+                                        <label for="mood-stressed" class="mood-btn" title="Stressed/Anxious">😰</label>
+                                        
+                                        <input type="radio" name="mood" id="mood-angry" value="😤">
+                                        <label for="mood-angry" class="mood-btn" title="Frustrated/Angry">😤</label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group textarea-group">
+                                    <div class="textarea-header">
+                                        <label for="journal-text">What's on your mind today?</label>
+                                        <button type="button" id="btn-mic" class="btn-mic" onclick="toggleVoiceInput()" title="Voice input in Indian English">
+                                            <i class="fa-solid fa-microphone"></i>
+                                        </button>
+                                    </div>
+                                    <textarea id="journal-text" placeholder="Write about your mock test scores, peer pressure, preparation stress, or minor victories..." required maxlength="2000"></textarea>
+                                    <div class="text-footer">
+                                        <span id="mic-status" class="mic-status"></span>
+                                        <span class="char-counter"><span id="char-count">0</span> / 2000</span>
+                                    </div>
+                                </div>
+
+                                <button type="submit" id="btn-submit-journal" class="btn-primary">
+                                    <span id="submit-spinner" class="spinner hidden"><i class="fa-solid fa-circle-notch fa-spin"></i></span>
+                                    Save Journal & Analyze
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Right: AI Stress Analysis & Live Tools -->
+                    <div class="side-analysis-container">
+                        <!-- Diagnostics Actions -->
+                        <div class="card action-triggers glass">
+                            <h3><i class="fa-solid fa-shield-halved"></i> Deeper Diagnostic Tools</h3>
+                            <p class="subtitle text-muted">Generate dynamic stress footprints from your history</p>
+                            <div class="action-buttons-row">
+                                <button id="btn-generate-dna" onclick="triggerStressDNA()" class="btn-secondary">
+                                    <i class="fa-solid fa-dna"></i> Stress DNA Fingerprint
+                                </button>
+                                <button id="btn-predict-burnout" onclick="triggerBurnoutPrediction()" class="btn-secondary">
+                                    <i class="fa-solid fa-chart-line-down"></i> Predict Burnout
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Stress DNA Card -->
+                        <div id="card-stress-dna" class="card info-card glass hidden">
+                            <div class="card-header border-saffron">
+                                <h3><i class="fa-solid fa-dna text-saffron"></i> Stress DNA Fingerprint</h3>
+                                <button class="btn-close-card" onclick="closeCard('card-stress-dna')">&times;</button>
+                            </div>
+                            <div class="card-body">
+                                <div class="dna-metric"><strong>Primary Stressor:</strong> <span id="dna-primary-stressor"></span></div>
+                                <div class="dna-metric"><strong>Stress Pattern:</strong> <span id="dna-stress-pattern"></span></div>
+                                <div class="dna-metric"><strong>Emotional Default:</strong> <span id="dna-emotional-default"></span></div>
+                                <div class="dna-metric font-accent"><strong>Personalized Mantra:</strong> <em id="dna-personalized-mantra"></em></div>
+                                <div class="dna-wins mt-2">
+                                    <strong>Weekly Wins (Positives):</strong>
+                                    <ul id="dna-weekly-wins"></ul>
+                                </div>
+                                <div class="dna-metric mt-2"><strong>Next Week Focus:</strong> <span id="dna-next-week-focus" class="highlight-box"></span></div>
+                            </div>
+                        </div>
+
+                        <!-- Burnout Prediction Card -->
+                        <div id="card-burnout" class="card info-card glass hidden">
+                            <div class="card-header border-purple">
+                                <h3><i class="fa-solid fa-hourglass-half text-purple"></i> Burnout Trajectory Predictor</h3>
+                                <button class="btn-close-card" onclick="closeCard('card-burnout')">&times;</button>
+                            </div>
+                            <div class="card-body">
+                                <div class="burnout-header">
+                                    <span class="burnout-label">Risk Level:</span>
+                                    <span id="burnout-risk-badge" class="badge"></span>
+                                </div>
+                                <div class="dna-metric mt-2"><strong>Estimated Days until Burnout:</strong> <span id="burnout-days" class="text-white font-weight-bold"></span></div>
+                                <div class="dna-wins mt-2">
+                                    <strong>Detected Warning Signs:</strong>
+                                    <ul id="burnout-warning-signs"></ul>
+                                </div>
+                                <div class="dna-metric mt-2"><strong>Recommended Interventions:</strong> <div id="burnout-intervention" class="highlight-box font-small"></div></div>
+                            </div>
+                        </div>
+
+                        <!-- Journal Insight Analysis Card (Result of Last Entry) -->
+                        <div id="card-analysis" class="card analysis-card glass hidden">
+                            <div class="card-header border-teal">
+                                <h3><i class="fa-solid fa-heart-pulse text-teal"></i> Real-time Journal Analysis</h3>
+                                <button class="btn-close-card" onclick="closeCard('card-analysis')">&times;</button>
+                            </div>
+                            <div class="card-body">
+                                <div class="analysis-grid">
+                                    <div class="analysis-box">
+                                        <span class="box-label">Stress Level</span>
+                                        <div class="stress-number"><span id="analysis-stress-val">5</span>/10</div>
+                                    </div>
+                                    <div class="analysis-box">
+                                        <span class="box-label">Emotions Detected</span>
+                                        <div id="analysis-emotions" class="badge-container"></div>
+                                    </div>
+                                </div>
+                                <div class="analysis-detail"><strong>Hidden Triggers (India-Specific):</strong> <span id="analysis-triggers"></span></div>
+                                <div class="analysis-detail"><strong>Coping Strategy:</strong> <span id="analysis-coping"></span></div>
+                                <div class="analysis-detail"><strong>2-Minute Exercise:</strong> <span id="analysis-mindfulness" class="highlight-box"></span></div>
+                                <div class="analysis-detail font-accent"><strong>Motivational Tip:</strong> <span id="analysis-motivational"></span></div>
+                                <div class="analysis-detail font-small text-muted"><strong>Cultural Context:</strong> <span id="analysis-india-context"></span></div>
+                                <div id="analysis-safety-alert" class="safety-alert hidden">
+                                    <i class="fa-solid fa-circle-exclamation"></i>
+                                    <strong>Crisis Support Triggered:</strong> High stress / self-harm indicators detected. Please reach out to professional support helplines (AASRA: 91-9820466726, Vandrevala Foundation: 9999 666 555).
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tab 2: Dashboard -->
+            <section id="section-dashboard" class="tab-content">
+                <!-- Empty State -->
+                <div id="dash-empty-state" class="empty-state card glass">
+                    <i class="fa-solid fa-chart-pie empty-icon"></i>
+                    <h2>No Insights Logged Yet</h2>
+                    <p>Start journaling to see your personalized stress trends, emotional peaks, and streak data here.</p>
+                </div>
+
+                <!-- Dashboard Content (hidden by default) -->
+                <div id="dash-content" class="dash-content-area hidden">
+                    <div class="stats-grid">
+                        <div class="stat-card glass">
+                            <i class="fa-solid fa-fire-flame-curved stat-icon text-saffron"></i>
+                            <div class="stat-info">
+                                <span class="stat-label">Daily Journal Streak</span>
+                                <h3 id="dash-streak">0 Days</h3>
+                            </div>
+                        </div>
+                        <div class="stat-card glass">
+                            <i class="fa-solid fa-book-open-reader stat-icon text-teal"></i>
+                            <div class="stat-info">
+                                <span class="stat-label">Total Logs Saved</span>
+                                <h3 id="dash-count">0</h3>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="charts-grid mt-4">
+                        <div class="chart-card glass">
+                            <h3><i class="fa-solid fa-chart-line text-teal"></i> Daily Average Stress Trend</h3>
+                            <div class="chart-container">
+                                <canvas id="chart-stress"></canvas>
+                            </div>
+                        </div>
+                        <div class="chart-card glass">
+                            <h3><i class="fa-solid fa-chart-pie text-purple"></i> Emotional Distribution</h3>
+                            <div class="chart-container">
+                                <canvas id="chart-emotions"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tab 3: Chat -->
+            <section id="section-chat" class="tab-content">
+                <div class="chat-wrapper card glass">
+                    <div class="chat-header">
+                        <div class="coach-avatar"><i class="fa-solid fa-circle-user"></i></div>
+                        <div class="coach-title">
+                            <h3>Empathetic AI Companion</h3>
+                            <span class="status-indicator">Online</span>
+                        </div>
+                    </div>
+                    
+                    <div class="chat-intro text-muted font-small">
+                        Ask about exam anxiety, procrastination, family expectations, or peer comparison.
+                    </div>
+                    
+                    <div id="chat-log" class="chat-log">
+                        <!-- Messages populated dynamically -->
+                    </div>
+                    
+                    <div class="chat-footer">
+                        <form id="form-chat" onsubmit="handleChatSubmit(event)" class="chat-form">
+                            <input type="text" id="chat-input" placeholder="How was your test prep today? Type here..." required autocomplete="off">
+                            <button type="submit" id="btn-send-chat" class="btn-send">
+                                <span id="chat-spinner" class="spinner hidden"><i class="fa-solid fa-circle-notch fa-spin"></i></span>
+                                <i class="fa-solid fa-paper-plane send-icon"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Quick Coping Modal Dialog -->
+    <div id="modal-coping" class="modal hidden">
+        <div class="modal-content glass">
+            <div class="modal-header">
+                <h3 id="modal-coping-title">Quick Relief Exercise</h3>
+                <button class="modal-close" onclick="closeCopingModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="modal-coping-content" class="coping-text-content">Loading exercise...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Javascript Controller -->
+    <script src="/static/script.js"></script>
+</body>
+</html>
